@@ -28,7 +28,8 @@ catálogo, perfis, acessos             (commit automático)                  mat
    - `hub.json`: `{app:"hub", v:1, gerado_em, kdf:{alg:"PBKDF2-SHA256", iter}, acessos:{id:{salt, iv, ct}}}`;
    - `id` = SHA-256 de `"hub:" + MATRÍCULA` (maiúscula, sem espaços);
    - chave da pessoa = PBKDF2-SHA256 (`kdf.iter`, hoje 600 mil) da chave normalizada; `ct` = AES-GCM do JSON
-     `{matricula, nome, perfil, apps:[{chave, nome, descricao, icone, url}]}`;
+     `{matricula, nome, perfil, apps:[{chave, nome, descricao, icone, imagem, url}]}`; `imagem` (desde a 1.2) é o
+     ícone da tela inicial do app; o HUB só mostra imagem https do **mesmo endereço** (senão, o emoji `icone`);
    - **normalização da chave** (`normCodigo`): tira acento, mantém só `A-Z a-z 0-9`, depois maiúscula. Igual a
      `norm_codigo` do MAPI, senão ninguém entra. Não reduza a força do PBKDF2 sem decisão do TI/Segurança.
 4. **O service worker (`sw.js`) fica na raiz e só pode responder pelos arquivos do HUB** (lista `CORE`). Os pedidos dos
