@@ -9,7 +9,7 @@
 (function () {
   'use strict';
 
-  const VERSION = '1.1.0';
+  const VERSION = '1.2.0';
   const K_PKG = 'hub.pkg';
   const CONFERIR_MS = 5 * 60 * 1000;
   const $ = id => document.getElementById(id);
@@ -58,6 +58,18 @@
     setTimeout(() => $('loginMat').focus(), 50);
   }
 
+  // o mesmo ícone da tela inicial do app; sem imagem (ou se ela não carregar, ex.: sem internet), o emoji
+  function iconeDoApp(a) {
+    const caixa = el('span', { class: 'app-ic', 'aria-hidden': 'true' }, a.imagem ? null : (a.icone || '📱'));
+    if (a.imagem) {
+      const img = el('img', { src: a.imagem, alt: '', loading: 'lazy', decoding: 'async' });
+      img.addEventListener('error', () => { caixa.classList.remove('com-img'); caixa.replaceChildren(a.icone || '📱'); });
+      caixa.classList.add('com-img');
+      caixa.append(img);
+    }
+    return caixa;
+  }
+
   function renderHub() {
     const c = S.conteudo;
     const primeiro = (c.nome || '').trim().split(/\s+/)[0];
@@ -72,7 +84,7 @@
         el('span', {}, 'Fale com o administrador do MAPI para liberar os apps do seu perfil.')));
     } else {
       c.apps.forEach(a => lista.append(el('a', { class: 'app', href: a.url },
-        el('span', { class: 'app-ic', 'aria-hidden': 'true' }, a.icone || '📱'),
+        iconeDoApp(a),
         el('span', { class: 'app-tx' }, el('b', {}, a.nome), a.descricao ? el('span', {}, a.descricao) : null),
         el('span', { class: 'app-seta', 'aria-hidden': 'true' }, '›'))));
     }

@@ -6,7 +6,7 @@
      app      "hub"      v  1
      kdf      PBKDF2-SHA256 com `iter` iterações (hoje 600 mil)
      acessos  { <id>: {salt, iv, ct} }    id = SHA-256("hub:" + MATRÍCULA)
-              ct = {matricula, nome, perfil, apps:[{chave, nome, descricao, icone, url}]} em JSON,
+              ct = {matricula, nome, perfil, apps:[{chave, nome, descricao, icone, imagem, url}]} em JSON,
                    cifrado (AES-GCM) direto com a chave da pessoa
 
    A chave da pessoa sai da chave de acesso dela (PBKDF2 com o salt dela). Depois do primeiro login fica guardada no
@@ -18,7 +18,7 @@
 (function (root) {
   'use strict';
 
-  const VERSAO = '1.1.0';
+  const VERSAO = '1.2.0';
   const C = (root.crypto && root.crypto.subtle) ? root.crypto : null;
   const enc = new TextEncoder();
   const APP = 'hub', PREFIXO = 'hub:';
@@ -55,11 +55,19 @@
     }
   }
 
+  // ícone do app (o mesmo da tela inicial dele): só imagem https do MESMO endereço do HUB (nada carregado de fora)
+  function imagemOk(v) {
+    if (typeof v !== 'string' || !/^https:\/\/[^\s"'<>]+\.(png|jpe?g|webp|svg)$/i.test(v) || v.length > 300) return '';
+    try { if (root.location && root.location.protocol === 'https:' && new URL(v).origin !== root.location.origin) return ''; } catch (e) { return ''; }
+    return v;
+  }
+
   // só passam apps com endereço https e campos de texto: o conteúdo vem de fora e vai para a tela
   function limpar(c) {
     const txt = (v, n) => (typeof v === 'string' ? v.slice(0, n) : '');
     const apps = (Array.isArray(c && c.apps) ? c.apps : []).filter(a => a && typeof a.url === 'string' && /^https:\/\/[^\s"'<>]+$/.test(a.url))
-      .map(a => ({ chave: txt(a.chave, 40), nome: txt(a.nome, 80) || 'App', descricao: txt(a.descricao, 200), icone: txt(a.icone, 16), url: a.url }));
+      .map(a => ({ chave: txt(a.chave, 40), nome: txt(a.nome, 80) || 'App', descricao: txt(a.descricao, 200), icone: txt(a.icone, 16),
+        imagem: imagemOk(a.imagem), url: a.url }));
     return { matricula: txt(c && c.matricula, 20), nome: txt(c && c.nome, 200), perfil: txt(c && c.perfil, 60), apps };
   }
 

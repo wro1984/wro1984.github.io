@@ -3,7 +3,7 @@
    Fica na RAIZ (escopo "/") para o HUB instalado abrir offline. Por isso ele também "enxerga" os pedidos dos outros
    apps (/CO_PROB/, /CO_Painel/...): só responde pelos arquivos do PRÓPRIO HUB e deixa todo o resto passar direto,
    sem cache nem alteração. Cada app continua com o service worker dele. */
-const VERSION = '1.1.0';
+const VERSION = '1.2.0';
 const CACHE = 'hub-v' + VERSION;
 const CORE = ['/', '/index.html', '/cripto.js', '/app.js', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png',
   '/icons/icon-maskable-512.png'];

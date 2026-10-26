@@ -18,6 +18,9 @@ test('cada pessoa abre só a própria lista, com a chave digitada de outro jeito
   const a = await H.entrar(fx.pacote, fx.acessos_teste[0].matricula, fx.acessos_teste[0].chave);
   assert.strictEqual(a.conteudo.nome, 'Pessoa Exemplo A');
   assert.deepStrictEqual(a.conteudo.apps.map(x => x.chave), ['problemas-sistemicos', 'ns-painel']);   // o javascript: saiu
+  // ícone: imagem https fica; javascript: vira vazio (o HUB mostra o emoji)
+  assert.strictEqual(a.conteudo.apps[0].imagem, 'https://wro1984.github.io/CO_PROB/icons/icon-192.png');
+  assert.strictEqual(a.conteudo.apps[1].imagem, '');
   const b = await H.entrar(fx.pacote, fx.acessos_teste[1].matricula, fx.acessos_teste[1].chave);
   assert.deepStrictEqual(b.conteudo.apps, []);
   // próximos acessos com a credencial guardada
