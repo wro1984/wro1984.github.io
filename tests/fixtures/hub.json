@@ -1,0 +1,34 @@
+{
+ "pacote": {
+  "app": "hub",
+  "v": 1,
+  "gerado_em": "2026-10-26T22:23:37+00:00",
+  "kdf": {
+   "alg": "PBKDF2-SHA256",
+   "iter": 600000
+  },
+  "acessos": {
+   "33acd3dd6087e3956a3b91ae3a5e950363f199b64f90197dd0048ff39df743a8": {
+    "salt": "tGlPQxhOQX20apBSVkCZnw==",
+    "iv": "5ZGNU/VpY5hLIZ5u",
+    "ct": "GmEpdtdmvoAlIgjz/qkG5aWcbBU9tq42DkxX0qvE6MBE3z7abSdncyuNOuKwCWcRf8UiDburqEL37Xnas3xYercG8HHtvZxoQBYaH/3imVgZ7YB5vrUtE9/ZkwYJiSHf7T0xQLsCwXFw3ekrf0iDDbo+EyVsTDkTKMGTbcDwJIr3HgfFhy233okdwO6m+E4X1YULevfgR9jhrMEdYtmGCR94FBanPXDtg+PSXerLDaLoyZv4stuCA3FsLUtz+jGr+zVGKH+HNnkvoBlI8/yt1D1z96b/1A+uNPIwCKGglxzoBGQHczftDNcJRaxlebKZCV2l91qlWMmr7DVBT+RI07lManyfzjPzpRD3qKgIJU+MdKBLNjOE0LXfJ0ZAZaYT9N8aRFUOi50gGJJI8zXgtG4neiCeThDOpSYbCoVJtcgeIOIoeBPxPPc5ZuIJC3Kf264rRPd1gKtpBFEBbCVSUxF/ysSzH6GPj3yYKeEfrRuIKhxVrvJlAA0z7Anov1a1NQOgRtn5CQwJ8WCZL29iPiNwCHH2fEhlwJEU60o76vQF8y+i85b0alfPWHqNa1sXzNxu52znhCLB7NOjMpP23Ewmm5M4RXJcYqtqxpIeXBA+xJZE+QjypNET025l0Wp8HECWtMlSh7Mub4am7mbcgyRxZL2lHfLr21ZnEXgPU8wMhMaeKlNXm5fnK7+eBQEHiVN12nY="
+   },
+   "0ef44ea160e257388327191017044ca573c5637e4dc5b301b7ea52e08bc362aa": {
+    "salt": "sGNsIziwuk9+ftXYQO9u8w==",
+    "iv": "kJ0WVSOofphnSXli",
+    "ct": "MHfOE5ABrlaLZpcx4pIbOdRmINZJ//nOhhXxDwKXB632yD6BB/YcjJPnrcczTNSuIUupCuc4+AxZoGu00KgEpjr1Dx7Ub9N5zsjJbj7p4ZN1XPQYzUxbdj5mi1/ZEw=="
+   }
+  }
+ },
+ "acessos_teste": [
+  {
+   "matricula": "a0001",
+   "chave": "LAGO VENTO PEDRA"
+  },
+  {
+   "matricula": "B0002",
+   "chave": "girassol2026"
+  }
+ ],
+ "nota": "Dados INVENTADOS, cifrados por hub.montar_pacote do MAPI (o repositório é público)."
+}

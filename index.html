@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HUB · Centro de Operações</title>
+<meta name="description" content="Os apps do Centro de Operações em um só lugar: entre uma vez e abra os apps liberados para você.">
+<meta name="theme-color" content="#642A90">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="HUB">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+:root{
+  /* paleta da empresa (a mesma dos apps) */
+  --roxo:#642A90; --verdeB:#99CC33; --laranja:#FF9901; --rosa:#EC357D;
+  --p50:#f6f1fa; --p100:#ebe0f4; --p200:#d5bfe7; --p300:#b48fd3; --p500:#8549b5; --p700:#642A90; --p800:#52227a; --p900:#3a1658;
+  --bg:#EFEAF5; --card:#fff; --ink:#1f1530; --ink2:#5b5068; --ink3:#9a90a8; --line:#e6e0ee; --bad:#c41a60; --badbg:#fde6ef;
+  --r:20px; --sh:0 1px 3px rgba(58,22,88,.05),0 10px 28px rgba(58,22,88,.09);
+  --fundo:radial-gradient(70% 45% at 100% 0%,#E4D6F3 0%,transparent 70%),radial-gradient(60% 40% at 0% 55%,#F5E6F0 0%,transparent 70%),linear-gradient(180deg,#F2EEF7,#ECE6F3);
+  --safe-t: env(safe-area-inset-top, 0px); --safe-b: env(safe-area-inset-bottom, 0px);
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#120A1A; --card:#221832; --ink:#efe9f6; --ink2:#bdb1cc; --ink3:#7d7190; --line:#352849; --bad:#ff6fa5; --badbg:#3f1226;
+    --sh:0 1px 0 rgba(255,255,255,.04) inset,0 10px 28px rgba(0,0,0,.38);
+    --fundo:radial-gradient(70% 45% at 100% 0%,#2A1840 0%,transparent 70%),radial-gradient(60% 40% at 0% 55%,#2A1426 0%,transparent 70%),linear-gradient(180deg,#140C1E,#100818); }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);overflow-x:clip}
+body{background:transparent;font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--fundo);pointer-events:none}
+button,input{font:inherit;color:inherit}
+[hidden]{display:none !important}
+
+header.top{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,var(--p800),var(--p700) 60%,var(--p500));color:#fff;
+  padding:calc(12px + var(--safe-t)) 16px 12px;box-shadow:0 2px 10px rgba(31,12,48,.18)}
+.top .row{display:flex;align-items:center;gap:12px;max-width:640px;margin:0 auto}
+.top .logo{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.16);display:grid;place-items:center;flex:none}
+.top .logo svg{width:22px;height:22px}
+.top h1{font-size:18px;margin:0;font-weight:700;letter-spacing:-.2px}
+.top .sub{font-size:12.5px;opacity:.88;margin-top:1px}
+.top .ib{margin-left:auto;width:40px;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);
+  display:grid;place-items:center;cursor:pointer;flex:none}
+.top .ib svg{width:20px;height:20px}
+
+main{max-width:640px;margin:0 auto;padding:18px 16px calc(24px + var(--safe-b))}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:22px 20px}
+
+/* entrada */
+#login .card{margin-top:8vh}
+#login h2{margin:0 0 4px;font-size:22px}
+#login p.lead{margin:0 0 18px;color:var(--ink2)}
+label.campo{display:block;font-size:13px;font-weight:600;color:var(--ink2);margin:12px 0 6px}
+input.txt{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--line);background:transparent;font-size:16px}
+input.txt:focus{outline:none;border-color:var(--p500);box-shadow:0 0 0 3px rgba(133,73,181,.18)}
+.ver{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2);margin-top:8px;cursor:pointer}
+.btn{width:100%;margin-top:18px;padding:14px;border-radius:14px;border:0;background:var(--p700);color:#fff;font-weight:700;font-size:16px;cursor:pointer}
+.btn:disabled{opacity:.6;cursor:default}
+.erro{color:var(--bad);font-size:14px;min-height:20px;margin-top:10px}
+.ajuda{font-size:13px;color:var(--ink3);margin-top:14px;line-height:1.5}
+
+/* atalhos */
+.ola{margin:4px 2px 2px;font-size:22px;font-weight:700}
+.perfil{margin:0 2px 14px;color:var(--ink2);font-size:13.5px}
+#apps{display:flex;flex-direction:column;gap:12px}
+a.app{display:flex;align-items:center;gap:14px;padding:16px;border-radius:var(--r);background:var(--card);box-shadow:var(--sh);
+  color:inherit;text-decoration:none;border:1.5px solid transparent;transition:transform .12s,border-color .12s}
+a.app:active{transform:scale(.985)}
+a.app:hover,a.app:focus-visible{border-color:var(--p300);outline:none}
+.app-ic{width:52px;height:52px;border-radius:16px;background:var(--p100);display:grid;place-items:center;font-size:28px;flex:none}
+@media (prefers-color-scheme: dark){.app-ic{background:#33244a}}
+.app-tx{display:flex;flex-direction:column;min-width:0;flex:1}
+.app-tx b{font-size:16.5px}
+.app-tx span{color:var(--ink2);font-size:13.5px;margin-top:2px}
+.app-seta{font-size:28px;color:var(--ink3);flex:none;line-height:1}
+.vazio{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:28px 20px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}
+.vazio-ic{font-size:34px}
+.vazio span{color:var(--ink2);font-size:14px}
+
+.instalar{margin-top:16px;padding:14px 16px;border-radius:16px;background:var(--p50);border:1px dashed var(--p300);font-size:13.5px;color:var(--ink2);
+  display:flex;align-items:center;gap:12px}
+@media (prefers-color-scheme: dark){.instalar{background:#1c1329}}
+.instalar span{flex:1}
+.instalar button{border:0;border-radius:10px;background:var(--p700);color:#fff;padding:9px 14px;font-weight:700;cursor:pointer;flex:none}
+
+.carregando{text-align:center;color:var(--ink2);padding:18vh 0}
+.rodape{text-align:center;color:var(--ink3);font-size:12.5px;margin-top:22px;line-height:1.7}
+.rodape button{border:0;background:none;color:var(--p500);font-weight:700;cursor:pointer;padding:0 2px}
+@media (prefers-color-scheme: dark){.rodape button{color:var(--p300)}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="row">
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="#fff"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2" opacity=".75"/><rect x="3" y="13" width="8" height="8" rx="2" opacity=".75"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>
+    </div>
+    <div>
+      <h1>HUB</h1>
+      <div class="sub">Centro de Operações</div>
+    </div>
+    <button class="ib" id="btAtualizar" aria-label="Atualizar a lista de apps" title="Atualizar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <div id="carregando" class="carregando">Abrindo…</div>
+
+  <section id="login" hidden>
+    <div class="card">
+      <h2>Entrar</h2>
+      <p class="lead">Use a matrícula e a chave de acesso que você recebeu. Você entra uma vez neste aparelho.</p>
+      <form id="loginForm" autocomplete="off" novalidate>
+        <label class="campo" for="loginMat">Matrícula</label>
+        <input id="loginMat" class="txt" name="matricula" maxlength="20" autocapitalize="characters" autocomplete="username" spellcheck="false">
+        <label class="campo" for="loginChave">Chave de acesso</label>
+        <input id="loginChave" class="txt" name="chave" type="password" autocapitalize="none" autocomplete="current-password" spellcheck="false" placeholder="ex.: lago-vento-pedra">
+        <label class="ver"><input type="checkbox" id="verChave"> mostrar a chave</label>
+        <button type="submit" class="btn" id="loginBtn">Entrar</button>
+        <div class="erro" id="loginErro" role="alert" aria-live="polite"></div>
+      </form>
+      <div class="ajuda">Maiúsculas, acentos, espaços e hífens não contam. Não tem acesso ou perdeu a chave? Fale com o administrador do MAPI.</div>
+    </div>
+  </section>
+
+  <section id="hub" hidden>
+    <div class="ola" id="ola"></div>
+    <div class="perfil" id="perfil"></div>
+    <div id="apps"></div>
+  </section>
+
+  <div class="instalar" id="instalar" hidden>
+    <span id="instTexto"></span>
+    <button type="button" id="instBtn" hidden>Instalar</button>
+  </div>
+
+  <div class="rodape" id="rodape" hidden>
+    <div id="situacao"></div>
+    <div>HUB <span id="versao"></span> · <span id="quem"></span> · <button type="button" id="btSair">Sair</button></div>
+  </div>
+</main>
+
+<script src="cripto.js?v=1.0.0"></script>
+<script src="app.js?v=1.0.0"></script>
+</body>
+</html>

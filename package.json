@@ -1,0 +1,7 @@
+{
+  "name": "hub-dos-apps",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/cripto.test.js"
+  }
+}
