@@ -6,7 +6,7 @@
      app      "hub"      v  1
      kdf      PBKDF2-SHA256 com `iter` iterações (hoje 600 mil)
      acessos  { <id>: {salt, iv, ct} }    id = SHA-256("hub:" + MATRÍCULA)
-              ct = {matricula, nome, perfil, apps:[{chave, nome, descricao, icone, url}]} em JSON,
+              ct = {matricula, nome, perfil, apps:[{chave, nome, descricao, icone, imagem, url}]} em JSON,
                    cifrado (AES-GCM) direto com a chave da pessoa
 
    A chave da pessoa sai da chave de acesso dela (PBKDF2 com o salt dela). Depois do primeiro login fica guardada no
