@@ -36,7 +36,9 @@ catálogo, perfis, acessos             (commit automático)                  mat
    que não comecem com `hub-v`: isso quebraria os outros apps de todo mundo.
 5. **A credencial fica no IndexedDB `co-hub-acesso`** (CryptoKey não extraível). Os apps do mesmo endereço vão usar esse
    banco no login único: não mude o nome nem o formato (`{id, matricula, chave, salt, desde}`) sem mudar os apps juntos.
-6. **Não carregar nada de fora**: sem CDNs, fontes externas, analytics. Os atalhos só aceitam endereços `https://`.
+6. **Sair do HUB é sair de todos os apps neste aparelho**: apaga a credencial e cancela as inscrições de aviso (push) de
+   todos os service workers deste endereço. Cada app apaga os próprios dados quando abre sem acesso.
+7. **Não carregar nada de fora**: sem CDNs, fontes externas, analytics. Os atalhos só aceitam endereços `https://`.
 
 ## Antes de cada push
 

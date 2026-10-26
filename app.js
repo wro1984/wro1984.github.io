@@ -9,7 +9,7 @@
 (function () {
   'use strict';
 
-  const VERSION = '1.0.0';
+  const VERSION = '1.1.0';
   const K_PKG = 'hub.pkg';
   const CONFERIR_MS = 5 * 60 * 1000;
   const $ = id => document.getElementById(id);
@@ -83,7 +83,20 @@
   }
 
   // ---------- acesso ----------
+  // Sair do HUB = sair de todos os apps neste aparelho: cancela também as inscrições de aviso (push) dos apps deste
+  // endereço (cada app tem o service worker dele). Os dados guardados por cada app são apagados por ele na próxima abertura.
+  async function cancelarAvisos() {
+    if (!('serviceWorker' in navigator) || !navigator.serviceWorker.getRegistrations) return;
+    try {
+      for (const reg of await navigator.serviceWorker.getRegistrations()) {
+        try { const sub = reg.pushManager && await reg.pushManager.getSubscription(); if (sub) await sub.unsubscribe(); } catch (e) { /* segue */ }
+      }
+    } catch (e) { /* segue */ }
+    try { localStorage.removeItem('ps.pushReg'); } catch (e) { /* segue */ }   // Problemas Sistêmicos: refaz a inscrição ao voltar
+  }
+
   async function perderAcesso(msg) {
+    await cancelarAvisos();
     await HubCripto.apagarTudo();
     try { localStorage.removeItem(K_PKG); } catch (e) { /* segue */ }
     S.cred = null; S.conteudo = null;

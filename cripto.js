@@ -18,7 +18,7 @@
 (function (root) {
   'use strict';
 
-  const VERSAO = '1.0.0';
+  const VERSAO = '1.1.0';
   const C = (root.crypto && root.crypto.subtle) ? root.crypto : null;
   const enc = new TextEncoder();
   const APP = 'hub', PREFIXO = 'hub:';
