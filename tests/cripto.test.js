@@ -17,7 +17,9 @@ test('normalização igual à do MAPI', () => {
 test('cada pessoa abre só a própria lista, com a chave digitada de outro jeito', async () => {
   const a = await H.entrar(fx.pacote, fx.acessos_teste[0].matricula, fx.acessos_teste[0].chave);
   assert.strictEqual(a.conteudo.nome, 'Pessoa Exemplo A');
-  assert.deepStrictEqual(a.conteudo.apps.map(x => x.chave), ['problemas-sistemicos', 'ns-painel']);   // o javascript: saiu
+  assert.deepStrictEqual(a.conteudo.apps.map(x => x.chave), ['problemas-sistemicos', 'ns-painel', 'ura', 'sem-grupo']);   // o javascript: saiu
+  // grupo (Relatórios/Monitoramento) vem do MAPI; sem grupo vira vazio (o HUB põe em "Outros")
+  assert.deepStrictEqual(a.conteudo.apps.map(x => x.grupo), ['Monitoramento', 'Relatórios', 'Relatórios', '']);
   // ícone: imagem https fica; javascript: vira vazio (o HUB mostra o emoji)
   assert.strictEqual(a.conteudo.apps[0].imagem, 'https://wro1984.github.io/CO_PROB/icons/icon-192.png');
   assert.strictEqual(a.conteudo.apps[1].imagem, '');
@@ -25,7 +27,7 @@ test('cada pessoa abre só a própria lista, com a chave digitada de outro jeito
   assert.deepStrictEqual(b.conteudo.apps, []);
   // próximos acessos com a credencial guardada
   const de_novo = await H.abrir(fx.pacote, a.cred);
-  assert.strictEqual(de_novo.apps.length, 2);
+  assert.strictEqual(de_novo.apps.length, 4);
 });
 
 test('chave errada e matrícula sem acesso dão a mesma mensagem', async () => {

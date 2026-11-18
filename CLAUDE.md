@@ -28,8 +28,9 @@ catálogo, perfis, acessos             (commit automático)                  mat
    - `hub.json`: `{app:"hub", v:1, gerado_em, kdf:{alg:"PBKDF2-SHA256", iter}, acessos:{id:{salt, iv, ct}}}`;
    - `id` = SHA-256 de `"hub:" + MATRÍCULA` (maiúscula, sem espaços);
    - chave da pessoa = PBKDF2-SHA256 (`kdf.iter`, hoje 600 mil) da chave normalizada; `ct` = AES-GCM do JSON
-     `{matricula, nome, perfil, apps:[{chave, nome, descricao, icone, imagem, url}]}`; `imagem` (desde a 1.2) é o
+     `{matricula, nome, perfil, apps:[{chave, nome, descricao, icone, imagem, grupo, url}]}`; `imagem` (desde a 1.2) é o
      ícone da tela inicial do app; o HUB só mostra imagem https do **mesmo endereço** (senão, o emoji `icone`);
+     `grupo` (desde a 1.3: `Relatórios` ou `Monitoramento`, definido no MAPI; vazio = aba "Outros") só organiza a tela;
    - **normalização da chave** (`normCodigo`): tira acento, mantém só `A-Z a-z 0-9`, depois maiúscula. Igual a
      `norm_codigo` do MAPI, senão ninguém entra. Não reduza a força do PBKDF2 sem decisão do TI/Segurança.
 4. **O service worker (`sw.js`) fica na raiz e só pode responder pelos arquivos do HUB** (lista `CORE`). Os pedidos dos
@@ -61,10 +62,18 @@ Abra <http://localhost:8000> e entre com `A0001` / `lago-vento-pedra` (dados de 
 
 | Arquivo | Papel |
 |---|---|
-| `index.html` | estrutura e estilos (paleta da empresa, modo escuro) |
-| `app.js` | entrada, atalhos, conferência a cada 5 min, sair, instalação |
+| `index.html` | estrutura e estilos (paleta da empresa, modo escuro; layout **A2 moderno** desde a 1.3: celular em coluna, a partir de 900 px barra no topo + tabela) |
+| `app.js` | entrada, abas por grupo, busca, fixados, conferência a cada 5 min, sair, instalação |
 | `cripto.js` | abrir o `hub.json`, credencial no aparelho (roda também no Node, para os testes) |
 | `sw.js` | cache offline **só** dos arquivos do HUB |
 | `manifest.webmanifest`, `icons/` | instalação no celular (escopo `/`) |
 | `tests/` | teste da criptografia com pacote de exemplo |
 | `hub.json` | **gerado pelo MAPI — não editar** |
+
+## Tela dos apps (layout A2 moderno, 1.3)
+
+- Abas por grupo (Todos · Relatórios · Monitoramento · Outros) com a contagem; sem nenhum `grupo` no pacote, sem abas.
+- **Fixados** (estrela) são só uma preferência do aparelho: ficam no `localStorage` `hub.fix` como **códigos curtos** (por matrícula + app),
+  nunca como lista legível de apps (regra do repositório: nada da lista de apps em texto aberto). Sair do HUB apaga.
+- Tema claro/escuro segue o aparelho (`prefers-color-scheme`). Busca ignora acento; `Ctrl+K` foca a busca no computador.
+- Tabela e barra do topo valem a partir de 900 px; abaixo disso é a coluna do celular. Teste nos dois (390 e 1280 px).

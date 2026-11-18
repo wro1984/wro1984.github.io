@@ -9,11 +9,11 @@
 (function () {
   'use strict';
 
-  const VERSION = '1.2.0';
+  const VERSION = '1.3.0';
   const K_PKG = 'hub.pkg';
   const CONFERIR_MS = 5 * 60 * 1000;
   const $ = id => document.getElementById(id);
-  const S = { cred: null, conteudo: null, origem: '', conferidoEm: 0 };
+  const S = { cred: null, conteudo: null, origem: '', conferidoEm: 0, aba: 'Todos', q: '' };
 
   const load = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
   const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
@@ -48,8 +48,8 @@
     $('login').hidden = qual !== 'login';
     $('hub').hidden = qual !== 'hub';
     $('carregando').hidden = qual !== 'carregando';
-    $('rodape').hidden = qual !== 'hub';
-    $('btAtualizar').hidden = qual !== 'hub';
+    $('cabLogin').hidden = qual === 'hub';          // no HUB a marca fica dentro da própria tela
+    if (qual !== 'hub') fecharConta();
   }
 
   function mostrarLogin(msg) {
@@ -70,28 +70,121 @@
     return caixa;
   }
 
-  function renderHub() {
-    const c = S.conteudo;
-    const primeiro = (c.nome || '').trim().split(/\s+/)[0];
-    $('ola').textContent = primeiro ? `Olá, ${primeiro}!` : 'Olá!';
-    $('perfil').textContent = c.perfil ? `Perfil: ${c.perfil}` : '';
-    const lista = $('apps');
-    lista.replaceChildren();
-    if (!c.apps.length) {
-      lista.append(el('div', { class: 'vazio' },
+  // ---------- grupos, busca e fixados (layout A2 moderno) ----------
+  const TODOS = 'Todos', OUTROS = 'Outros';
+  const COR_GRUPO = { 'Relatórios': '#B48FD3', 'Monitoramento': '#FF9901', [OUTROS]: '#99CC33' };
+  const K_FIX = 'hub.fix';
+  const grupoDe = a => (a.grupo || OUTROS);
+  const sem = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+  // Fixados são só uma preferência da pessoa, mas o repositório pede que nada da lista de apps fique em texto aberto no
+  // aparelho: guardamos só um código curto (por matrícula + app), que o próprio HUB sabe refazer.
+  function codigo(texto) {
+    let h1 = 0x811c9dc5, h2 = 0x01000193;
+    for (let i = 0; i < texto.length; i++) {
+      const c = texto.charCodeAt(i);
+      h1 = Math.imul(h1 ^ c, 0x01000193) >>> 0;
+      h2 = Math.imul(h2 + c, 0x85ebca6b) >>> 0;
+    }
+    return h1.toString(16).padStart(8, '0') + h2.toString(16).padStart(8, '0');
+  }
+  const codApp = a => codigo('fix:' + (S.conteudo.matricula || S.cred.matricula) + ':' + a.chave);
+  function lerFix() {
+    const v = load(K_FIX);
+    return new Set(v && Array.isArray(v.c) && v.m === codigo('m:' + (S.conteudo.matricula || S.cred.matricula)) ? v.c.filter(x => typeof x === 'string') : []);
+  }
+  function gravarFix(set) { save(K_FIX, { m: codigo('m:' + (S.conteudo.matricula || S.cred.matricula)), c: [...set] }); }
+  function alternarFixo(a) {
+    const set = lerFix(), c = codApp(a);
+    if (set.has(c)) set.delete(c); else set.add(c);
+    gravarFix(set);
+    renderLista();
+  }
+
+  function abasDisponiveis(apps) {
+    const grupos = [];
+    apps.forEach(a => { const g = grupoDe(a); if (!grupos.includes(g)) grupos.push(g); });
+    if (grupos.length === 1 && grupos[0] === OUTROS) return [];       // ninguém tem grupo: sem abas
+    const ordem = ['Relatórios', 'Monitoramento'];
+    grupos.sort((x, y) => (ordem.includes(x) ? ordem.indexOf(x) : 9) - (ordem.includes(y) ? ordem.indexOf(y) : 9) || x.localeCompare(y));
+    return [TODOS, ...grupos];
+  }
+
+  function renderLista() {
+    const c = S.conteudo, apps = c.apps;
+    const corpo = $('corpo'), abasEl = $('abas');
+    const abas = abasDisponiveis(apps);
+    if (!abas.includes(S.aba)) S.aba = TODOS;
+    const q = sem(S.q.trim());
+    const bate = a => !q || sem(a.nome + ' ' + a.descricao + ' ' + grupoDe(a)).includes(q);
+    abasEl.hidden = !abas.length;
+    abasEl.replaceChildren(...abas.map(n => {
+      const qtd = apps.filter(a => (n === TODOS || grupoDe(a) === n) && bate(a)).length;
+      const b = el('button', { type: 'button', class: 'aba', role: 'tab', 'aria-selected': String(S.aba === n) }, n, el('span', { class: 'n' }, qtd));
+      b.addEventListener('click', () => { S.aba = n; renderLista(); });
+      return b;
+    }));
+    corpo.replaceChildren();
+    if (!apps.length) {
+      corpo.append(el('div', { class: 'vazio vidro' },
         el('div', { class: 'vazio-ic', 'aria-hidden': 'true' }, '🔒'),
         el('b', {}, 'Nenhum app liberado ainda'),
         el('span', {}, 'Fale com o administrador do MAPI para liberar os apps do seu perfil.')));
-    } else {
-      c.apps.forEach(a => lista.append(el('a', { class: 'app', href: a.url },
-        iconeDoApp(a),
-        el('span', { class: 'app-tx' }, el('b', {}, a.nome), a.descricao ? el('span', {}, a.descricao) : null),
-        el('span', { class: 'app-seta', 'aria-hidden': 'true' }, '›'))));
+      return;
     }
-    $('quem').textContent = `${c.matricula || S.cred.matricula}`;
+    const fixos = lerFix();
+    const itens = apps.filter(a => (S.aba === TODOS || grupoDe(a) === S.aba) && bate(a));
+    const fixados = apps.filter(a => fixos.has(codApp(a)));
+    if (fixados.length && !q && S.aba === TODOS) {
+      corpo.append(el('section', { class: 'fixados', 'aria-label': 'Fixados' }, el('h3', {}, 'Fixados'),
+        el('div', { class: 'fix-grade' }, fixados.map(a => el('a', { class: 'fix vidro', href: a.url }, iconeDoApp(a), a.nome)))));
+    }
+    const lista = el('div', { class: 'lista vidro' });
+    lista.append(el('div', { class: 'lista-cab', 'aria-hidden': 'true' }, el('span', {}, 'App'), el('span', {}, 'Descrição'), el('span', {}, 'Grupo'), el('span', {})));
+    if (!itens.length) lista.append(el('div', { class: 'sem' }, 'Nenhum app encontrado.'));
+    itens.forEach(a => {
+      const g = grupoDe(a), fixo = fixos.has(codApp(a));
+      const estrela = el('button', { type: 'button', class: 'estrela', 'aria-pressed': String(fixo), 'aria-label': (fixo ? 'Desafixar ' : 'Fixar ') + a.nome });
+      estrela.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3Z"/></svg>';
+      estrela.addEventListener('click', () => alternarFixo(a));
+      const ponto = el('i', { title: g }); ponto.style.background = COR_GRUPO[g] || '';
+      const ponto2 = el('i', {}); ponto2.style.background = COR_GRUPO[g] || 'var(--ink3)';
+      lista.append(el('div', { class: 'item' },
+        el('a', { class: 'linha', href: a.url },
+          iconeDoApp(a),
+          el('span', { class: 'tx' }, el('span', { class: 'nome' }, a.nome, ponto), a.descricao ? el('span', { class: 'desc' }, a.descricao) : el('span', { class: 'desc' })),
+          el('span', { class: 'grupo' }, ponto2, g),
+          el('span', { class: 'abrir' }, 'Abrir')),
+        estrela));
+    });
+    corpo.append(lista);
+    if (!fixados.length && apps.length > 3 && !q) corpo.append(el('p', { class: 'dica' }, 'Toque na estrela para fixar os apps que você mais usa.'));
+  }
+
+  function renderHub() {
+    const c = S.conteudo;
+    const primeiro = (c.nome || '').trim().split(/\s+/)[0];
+    $('ola').textContent = primeiro ? `Olá, ${primeiro}` : 'Olá';
+    $('sub').textContent = S.origem === 'guardado' ? 'Sem internet · última lista guardada' : 'Centro de Operações';
+    const mat = c.matricula || S.cred.matricula;
+    $('nomeTopo').textContent = c.nome || mat;
+    $('perfilTopo').textContent = c.perfil ? `perfil ${c.perfil}` : '';
+    $('contaNome').textContent = c.nome || mat;
+    $('contaMeta').textContent = [mat, c.perfil ? `perfil ${c.perfil}` : ''].filter(Boolean).join(' · ');
     $('versao').textContent = 'v' + VERSION;
     $('situacao').textContent = S.origem === 'guardado' ? 'sem internet · última lista guardada' : 'atualizado agora';
+    renderLista();
     mostrar('hub');
+  }
+
+  function fecharConta() {
+    const p = $('contaPop');
+    if (!p || p.hidden) return;
+    p.hidden = true; $('btConta').setAttribute('aria-expanded', 'false');
+  }
+  function alternarConta() {
+    const p = $('contaPop'), abrir = p.hidden;
+    p.hidden = !abrir; $('btConta').setAttribute('aria-expanded', String(abrir));
   }
 
   // ---------- acesso ----------
@@ -110,8 +203,8 @@
   async function perderAcesso(msg) {
     await cancelarAvisos();
     await HubCripto.apagarTudo();
-    try { localStorage.removeItem(K_PKG); } catch (e) { /* segue */ }
-    S.cred = null; S.conteudo = null;
+    try { localStorage.removeItem(K_PKG); localStorage.removeItem(K_FIX); } catch (e) { /* segue */ }
+    S.cred = null; S.conteudo = null; S.aba = 'Todos'; S.q = ''; $('busca').value = '';
     mostrarLogin(msg);
   }
 
@@ -178,7 +271,14 @@
   async function iniciar() {
     $('loginForm').addEventListener('submit', entrar);
     $('btSair').addEventListener('click', sair);
-    $('btAtualizar').addEventListener('click', conferir);
+    $('btAtualizar').addEventListener('click', () => { fecharConta(); conferir(); });
+    $('btConta').addEventListener('click', alternarConta);
+    $('busca').addEventListener('input', e => { S.q = e.target.value; if (S.conteudo) renderLista(); });
+    document.addEventListener('click', e => { if (!e.target.closest('.conta-box')) fecharConta(); });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') fecharConta();
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k' && !$('hub').hidden) { e.preventDefault(); $('busca').focus(); }
+    });
     $('instBtn').addEventListener('click', async () => {
       if (!pedidoInstalar) return;
       pedidoInstalar.prompt();
